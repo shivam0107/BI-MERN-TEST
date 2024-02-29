@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { jwtDecode } from "jwt-decode";
 import { json, useNavigate, useParams } from "react-router-dom";
-import { logout } from "../services/operations/auth";
+import { getAllUserDetails, logout } from "../services/operations/auth";
 import { setToken } from "../store/Slices/authSlice";
 import io from "socket.io-client";
 import { nanoid } from "@reduxjs/toolkit";
@@ -16,14 +16,24 @@ const Dashboard = () => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
 
+  //state variables
   const [googleUser, setGoogleUser] = useState(null);
   const [message, setMessage] = useState("");
   const [chat, setChat] = useState([]);
+  const [allUser, setAllUser] = useState([]);
 
   const { token, user } = useSelector((state) => state.auth);
   console.log("user", user);
   console.log("googleuser", googleUser);
 
+  //getting all users details
+  const getAllUserHandler = async () => {
+    const data = await getAllUserDetails();
+    console.log("all user data", data);
+    setAllUser(data);
+  };
+
+  //socket emit event
   const sendChat = (e) => {
     const userName = googleUser.firstName;
     e.preventDefault();
@@ -31,12 +41,15 @@ const Dashboard = () => {
     setMessage("");
   };
 
+  //seting chat data after socket connection on
+
   useEffect(() => {
     socket.on("chat", (payload) => {
       setChat([...chat, payload]);
     });
   });
 
+  //setting data to state variable after login
   useEffect(() => {
     if (url) {
       const data = jwtDecode(token);
@@ -116,11 +129,33 @@ const Dashboard = () => {
         />
         <button
           type="submit"
-          className="mt-2 border-2 p-2 rounded-md bg-blue-200"
+          className="mt-2 border-2 p-2 rounded-md bg-blue-200 transition-all duration-200 hover:scale-95"
         >
           Send Message
         </button>
       </form>
+
+      <div className="flex flex-col  items-center mt-10 justify-center ">
+        <h1>Click Here To get All users Details</h1>
+        <button
+          onClick={getAllUserHandler}
+          className="p-2 border-2 border-white bg-teal-400 rounded-md transition-all duration-200 hover:scale-95"
+        >
+          Get Details
+        </button>
+        <div className="w-11/12 p-2 border-2 flex flex-col justify-center items-center mt-3  min-h-[100px] space-y-2  mx-auto ">
+          {allUser.map((user, index) => (
+            <div className="p-2 border-2 bg-blue-200 w-fit rounded-md text-center">
+              <div>
+                {user.firstName} {user.lastName}
+              </div>
+              <div>
+                {user.email}
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
     </div>
   );
 };

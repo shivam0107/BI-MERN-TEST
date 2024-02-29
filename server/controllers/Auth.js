@@ -133,3 +133,39 @@ exports.login = async (req, res) => {
     });
   }
 };
+
+
+exports.getAllUsers = async (req, res) => {
+  try {
+    //find all the users 
+    const users = await User.find({},
+      {
+      firstName: true,
+      lastName: true,
+      email:true
+    });
+
+    if (!users) {
+      return res.status(401).json({
+        success: false,
+        message:"users not found please register first"
+      })
+    }
+
+    console.log("users" , users)
+
+    return res.status(200).json({
+      success: true,
+      message:"users get successfully",
+      data: users
+      
+    })
+
+  } catch (error) {
+    console.log(error);
+    return res.status(500).json({
+      success: false,
+      message:"error occured while fetching all users details"
+    })
+  }
+}

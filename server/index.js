@@ -35,7 +35,7 @@ const io = new Server(server, {
 });
 
 io.on("connection", (socket) => {
-  console.log("a user connected", socket);
+  // console.log("a user connected", socket);
   console.log("Socket is active to be connected");
 
   socket.on("chat", (payload) => {

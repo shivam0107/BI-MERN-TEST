@@ -22,22 +22,39 @@ app.use(cors({ origin: "http://localhost:3000", credentials: true }));
 
 app.use(express.json());
 
-//-----------------------------------------socket.io------------------------
 
+
+
+
+//-----------------------------------------socket.io------------------------
 const io = new Server(server, {
   cors: {
-    origin: "http://localhost:3000",
-    credentials: true,
+    origin: "*",
+    methods: ["GET", "POST"],
   },
 });
 
 io.on("connection", (socket) => {
-  console.log(`user connected ${socket.id} `);
+  console.log("a user connected", socket);
+  console.log("Socket is active to be connected");
 
-  socket.on("send_message", (data) => {
-    console.log("data" , data)
+  socket.on("chat", (payload) => {
+    console.log("what is payload", payload);
+    io.emit("chat", payload);
   });
 });
+
+server.listen(4000, () => {
+  console.log("server is listening at 4000");
+});
+
+
+
+
+
+
+
+
 
 // --------------------------------google AUTh ----------------------
 app.use(passport.initialize());
